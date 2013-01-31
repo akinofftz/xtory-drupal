@@ -1,0 +1,6 @@
+name = Xtory Cover
+description = Provides a field to generate cover images.
+core = 7.x
+package = Xtory
+files[] = xtory_cover.module
+files[] = xtory_cover.install

@@ -1,0 +1,162 @@
+<?php
+
+/**
+ * @implements hook_field_info() 
+ */
+function xtory_cover_field_info() {
+  return array(
+    'xtory_cover' => array(
+      'label'             => t('Xtory Cover'),
+      'description'       => t('An auto generated cover image with (optional) author name, title, and subtitle.'),
+      'default_widget'    => 'xtory_cover_widget',
+      'default_formatter' => 'xtory_cover_formatter',
+    ),
+  );
+}
+
+
+/**
+ * @implements hook_field_formatter_info()
+ */
+function xtory_cover_field_formatter_info() {
+  return array(
+    'xtory_cover_formatter' => array(
+      'label'       => t('Xtory Cover formatter'),
+      'field types' => array('xtory_cover'),
+    ),
+  );
+}
+
+
+/**
+ * @implements hook_field_formatter_view()
+ */
+function xtory_cover_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  
+  switch ($display['type']) {
+    case 'xtory_cover_formatter':
+      foreach ($items as $delta => $item) {
+        if ($item['xtory_cover_fid_raw']) {
+          $element[$delta]['#markup'] = dprint_r($item, true);
+        }
+      }
+      break;
+  }
+  return $element;
+}
+
+
+/**
+ * @implements hook_field_widget_form()
+ */
+function xtory_cover_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $field_name = $field['field_name'];
+  $field_type = $field['type'];
+  
+  if (!empty($items[$delta]) && isset($items[$delta]['xtory_cover_fid_raw'])) {
+    extract($items[$delta]);
+  } else {
+    $xtory_cover_fid_raw        = 0;
+    $xtory_cover_fid_rendered   = 0;
+    $xtory_cover_color_author   = '';
+    $xtory_cover_color_title    = '';
+    $xtory_cover_color_subtitle = '';
+    $xtory_cover_text_align     = 'center';
+  }
+  
+  switch ($instance['widget']['type']) {
+    case 'xtory_cover':
+      $element += array(
+        '#type'            => 'fieldset',
+        '#title'           => $element['#title'],
+        '#description'     => $element['#description'],
+        '#required'        => $element['#required'],
+        '#weight'          => isset($element['#weight']) ? $element['#weight'] : 0,
+        '#delta'           => $delta,
+        'xtory_cover_fid_raw' => array(
+          '#type'          => 'managed_file',
+          '#title'         => 'raw cover image fid',
+          '#default_value' => $xtory_cover_fid_raw,
+        ),
+        'xtory_cover_fid_rendered' => array(
+          '#type'          => 'textfield',
+          '#title'         => 'rendered cover image fid',
+          '#default_value' => $xtory_cover_fid_rendered,
+        ),
+        'xtory_cover_color_author' => array(
+          '#type'          => 'textfield',
+          '#title'         => 'color of author\'s name',
+          '#default_value' => $xtory_cover_color_author,
+                  ),
+        'xtory_cover_color_title' => array(
+          '#type'          => 'textfield',
+          '#title'         => 'color of title',
+          '#default_value' => $xtory_cover_color_title,
+        ),
+        'xtory_cover_color_subtitle' => array(
+          '#type'          => 'textfield',
+          '#title'         => 'color of subtitle',
+          '#default_value' => $xtory_cover_color_subtitle,
+        ),
+        'xtory_cover_text_align' => array(
+          '#type'          => 'select',
+          '#title'         => 'align of text on cover',
+          '#options'       => array('start' => t('left'), 'center' => t('center'), 'end' => t('right')),
+          '#default_value' => $xtory_cover_text_align,
+        ),
+      );
+      break;
+  }
+  return $element;
+}
+
+/**
+ * @implements hook_field_widget_error()
+ */
+function xtory_cover_widget_error($element, $error, $form, &$form_state) {
+  //@TODO
+}
+
+
+/**
+ * @implements hook_field_is_empty()
+ */
+function xtory_cover_field_is_empty($item, $field) {
+  if (empty($item['xtory_cover_fid_raw']) || $item['xtory_cover_fid_raw'] == 0) {
+    return TRUE;
+  }
+}
+
+
+/**
+ * @implements hook_field_widget_info()
+ */
+function xtory_cover_field_widget_info() {
+  return array(
+    'xtory_cover' => array(
+      'label'       => t('Xtory Cover'),
+      'field types' => array('xtory_cover'),
+    ),
+  );
+}
+
+
+/**
+ * @implements hook_field_presave
+ */
+function xtory_cover_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  dprintf($field);
+  if ($field['field_name'] == 'xtory_cover') {
+	foreach ($items as $item) {
+      $file = file_load($item['xtory_cover_fid_raw']);
+      if (!$file->status) {
+        $file->status = FILE_STATUS_PERMANENT;
+        file_save($file);
+        dprintf($file);
+      }
+    }
+  }
+}
+
+

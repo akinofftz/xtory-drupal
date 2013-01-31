@@ -1,0 +1,20 @@
+<?php
+
+function xtory_cover_install() {}
+function xtory_cover_uninstall() {}
+
+function xtory_cover_field_schema($field) {
+  if ($field['type'] == 'xtory_cover') {
+    return array(
+      'columns' => array(
+        'xtory_cover_fid_raw'        => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+        'xtory_cover_fid_rendered'   => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+        'xtory_cover_color_author'   => array('type' => 'varchar', 'length' => 6, 'not null' => TRUE, 'default' => ''),
+        'xtory_cover_color_title'    => array('type' => 'varchar', 'length' => 6, 'not null' => TRUE, 'default' => ''),
+        'xtory_cover_color_subtitle' => array('type' => 'varchar', 'length' => 6, 'not null' => TRUE, 'default' => ''),
+        'xtory_cover_text_align'     => array('type' => 'varchar', 'length' => 6, 'not null' => TRUE, 'default' => 'center'),
+      ),
+    );
+  }
+}
+
